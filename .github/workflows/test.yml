@@ -9,7 +9,7 @@ on:
 
 jobs:
 
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -22,18 +22,16 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
-  build:
-    needs: test
+  test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    # - uses: actions/checkout@v3
 
-    - name: Set Up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+    # - name: Set Up Go
+    #   uses: actions/setup-go@v3
+    #   with:
+    #     go-version: 1.18
       
-    - name: Build
-      run: go build -v ./..
+    - name: Test
+      run: go test -v ./...
