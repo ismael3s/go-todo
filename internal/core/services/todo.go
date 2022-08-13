@@ -24,3 +24,7 @@ func (s *TodoService) GetTodo(id string) (*domain.Todo, error) {
 
 	return todo, nil
 }
+
+func (s *TodoService) Save(todo *domain.Todo) error {
+	return s.todoRepository.Save(todo)
+}
