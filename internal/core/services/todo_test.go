@@ -118,3 +118,74 @@ func TestTodoService_GetTodo(t *testing.T) {
 		})
 	}
 }
+
+func TestTodoService_Save(t *testing.T) {
+	todosUpdate := []*domain.Todo{
+		{
+			ID:    "2",
+			Title: "Todo 1",
+		},
+	}
+
+	type fields struct {
+		todoRepository ports.TodoRepository
+	}
+	type args struct {
+		todo *domain.Todo
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "should be able to create a todo",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository([]*domain.Todo{}, nil),
+			},
+			args: args{
+				todo: &domain.Todo{
+					Title: "Todo 1",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "should be able to update a todo",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todosUpdate, nil),
+			},
+			args: args{
+				todo: &domain.Todo{
+					ID:    "2",
+					Title: "Todo 2",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "should be return an error when given ID has no todo",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todosUpdate, nil),
+			},
+			args: args{
+				todo: &domain.Todo{
+					ID:    "3",
+					Title: "Todo 2",
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &TodoService{
+				todoRepository: tt.fields.todoRepository,
+			}
+			if err := s.Save(tt.args.todo); (err != nil) != tt.wantErr {
+				t.Errorf("TodoService.Save() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
