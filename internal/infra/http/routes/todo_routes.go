@@ -21,6 +21,7 @@ func (r *todoRouter) RegisterRoutes() {
 	r.getTodos()
 	r.getTodo()
 	r.save()
+	r.update()
 }
 
 func (r *todoRouter) getTodos() {
@@ -33,4 +34,8 @@ func (r *todoRouter) getTodo() {
 
 func (r *todoRouter) save() {
 	r.framework.POST("/todos", r.controller.Save)
+}
+
+func (r *todoRouter) update() {
+	r.framework.PUT("/todos/:id", r.controller.Update)
 }
