@@ -31,10 +31,22 @@ func (s *TodoService) GetTodo(id string) (*domain.Todo, error) {
 	return todo, nil
 }
 
-func (s *TodoService) Save(todo *domain.Todo) error {
+func (s *TodoService) Save(todo *domain.Todo) (*domain.Todo, error) {
 	return s.todoRepository.Save(todo)
 }
 
 func (s *TodoService) Remove(id string) error {
 	return s.todoRepository.Remove(id)
+}
+
+func (s *TodoService) Update(todo *domain.Todo) (*domain.Todo, error) {
+	todoExists, err := s.GetTodo(todo.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	todo.CreatedAt = todoExists.CreatedAt
+
+	return s.todoRepository.Save(todo)
 }
