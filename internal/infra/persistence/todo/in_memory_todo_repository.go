@@ -69,9 +69,9 @@ func (r *InMemoryTodoRepository) removeIndex(index int) []*domain.Todo {
 	return append(r.todos[:index], r.todos[index+1:]...)
 }
 
-func (r *InMemoryTodoRepository) Save(todo *domain.Todo) error {
+func (r *InMemoryTodoRepository) Save(todo *domain.Todo) (*domain.Todo, error) {
 	if r.err != nil {
-		return r.err
+		return nil, r.err
 	}
 
 	if strings.TrimSpace(todo.ID) == "" {
@@ -81,29 +81,29 @@ func (r *InMemoryTodoRepository) Save(todo *domain.Todo) error {
 	return r.update(todo)
 }
 
-func (r *InMemoryTodoRepository) create(todo *domain.Todo) error {
+func (r *InMemoryTodoRepository) create(todo *domain.Todo) (*domain.Todo, error) {
 	if r.err != nil {
-		return r.err
+		return nil, r.err
 	}
 
 	todo.ID = utils.NewUUID()
 
 	r.todos = append(r.todos, todo)
 
-	return nil
+	return todo, nil
 }
 
-func (r *InMemoryTodoRepository) update(todo *domain.Todo) error {
+func (r *InMemoryTodoRepository) update(todo *domain.Todo) (*domain.Todo, error) {
 	if r.err != nil {
-		return r.err
+		return nil, r.err
 	}
 
 	for i, t := range r.todos {
 		if t.ID == todo.ID {
 			r.todos[i] = todo
-			return nil
+			return todo, nil
 		}
 	}
 
-	return errors.New("todo not found")
+	return nil, errors.New("todo not found")
 }

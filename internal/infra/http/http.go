@@ -2,11 +2,11 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ismael3s/go-todo/internal/core/domain"
 	"github.com/ismael3s/go-todo/internal/core/services"
 	"github.com/ismael3s/go-todo/internal/infra/http/controllers"
 	"github.com/ismael3s/go-todo/internal/infra/http/routes"
-	persistence "github.com/ismael3s/go-todo/internal/infra/persistence/todo"
+	"github.com/ismael3s/go-todo/internal/infra/persistence"
+	repositories "github.com/ismael3s/go-todo/internal/infra/persistence/todo"
 )
 
 type RoutesHandler struct {
@@ -18,7 +18,8 @@ func NewRoutesHandler(framework *gin.Engine) *RoutesHandler {
 }
 
 func (r *RoutesHandler) RegisterRoutes() {
-	todoRepository := persistence.NewInMemoryTodoRepository([]*domain.Todo{}, nil)
+	db := persistence.GetPostgresConnection()
+	todoRepository := repositories.NewPostgresTodoRepository(db)
 	todoService := services.NewTodoService(todoRepository)
 	todoController := controllers.NewTodoController(todoService)
 
