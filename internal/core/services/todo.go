@@ -11,6 +11,12 @@ type TodoService struct {
 	todoRepository ports.TodoRepository
 }
 
+func NewTodoService(todoRepository ports.TodoRepository) *TodoService {
+	return &TodoService{
+		todoRepository: todoRepository,
+	}
+}
+
 func (s *TodoService) GetTodos() ([]*domain.Todo, error) {
 	return s.todoRepository.GetTodos()
 }
