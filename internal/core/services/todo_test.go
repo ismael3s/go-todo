@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -22,10 +23,18 @@ func TestTodoService_GetTodos(t *testing.T) {
 		{
 			name: "should be able to return all todos",
 			fields: fields{
-				todoRepository: persistence.NewInMemoryTodoRepository(),
+				todoRepository: persistence.NewInMemoryTodoRepository(nil),
 			},
 			want:    []*domain.Todo{},
 			wantErr: false,
+		},
+		{
+			name: "should not be able to return all todos",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(errors.New("Failed to find todos")),
+			},
+			want:    []*domain.Todo{},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -38,6 +47,11 @@ func TestTodoService_GetTodos(t *testing.T) {
 				t.Errorf("TodoService.GetTodos() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
+			if (err != nil) == tt.wantErr {
+				return
+			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("TodoService.GetTodos() = %v, want %v", got, tt.want)
 			}
