@@ -23,7 +23,7 @@ func TestTodoService_GetTodos(t *testing.T) {
 		{
 			name: "should be able to return all todos",
 			fields: fields{
-				todoRepository: persistence.NewInMemoryTodoRepository(nil),
+				todoRepository: persistence.NewInMemoryTodoRepository([]*domain.Todo{}, nil),
 			},
 			want:    []*domain.Todo{},
 			wantErr: false,
@@ -31,7 +31,7 @@ func TestTodoService_GetTodos(t *testing.T) {
 		{
 			name: "should not be able to return all todos",
 			fields: fields{
-				todoRepository: persistence.NewInMemoryTodoRepository(errors.New("Failed to find todos")),
+				todoRepository: persistence.NewInMemoryTodoRepository([]*domain.Todo{}, errors.New("Failed to find todos")),
 			},
 			want:    []*domain.Todo{},
 			wantErr: true,
@@ -54,6 +54,66 @@ func TestTodoService_GetTodos(t *testing.T) {
 
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("TodoService.GetTodos() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTodoService_GetTodo(t *testing.T) {
+	todos := []*domain.Todo{
+		{
+			ID:    "1",
+			Title: "Todo 1",
+		},
+	}
+	type fields struct {
+		todoRepository ports.TodoRepository
+	}
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *domain.Todo
+		wantErr bool
+	}{
+		{
+			name: "given an existing id should be able to return the todo",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todos, nil),
+			},
+			args: args{
+				id: "1",
+			},
+			want:    &domain.Todo{ID: "1", Title: "Todo 1"},
+			wantErr: false,
+		},
+		{
+			name: "given an unexisting id should throw an error",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todos, nil),
+			},
+			args: args{
+				id: "2",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &TodoService{
+				todoRepository: tt.fields.todoRepository,
+			}
+			got, err := s.GetTodo(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TodoService.GetTodo() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TodoService.GetTodo() = %v, want %v", got, tt.want)
 			}
 		})
 	}
