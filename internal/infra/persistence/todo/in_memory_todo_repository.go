@@ -42,6 +42,33 @@ func (r *InMemoryTodoRepository) GetTodo(id string) (*domain.Todo, error) {
 	return nil, errors.New("todo not found")
 }
 
+func (r *InMemoryTodoRepository) Remove(id string) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	var index = -1
+
+	for i, t := range r.todos {
+		if t.ID == id {
+			index = i
+			break
+		}
+	}
+
+	if index == -1 {
+		return errors.New("todo not found")
+	}
+
+	r.todos = r.removeIndex(index)
+
+	return nil
+}
+
+func (r *InMemoryTodoRepository) removeIndex(index int) []*domain.Todo {
+	return append(r.todos[:index], r.todos[index+1:]...)
+}
+
 func (r *InMemoryTodoRepository) Save(todo *domain.Todo) error {
 	if r.err != nil {
 		return r.err

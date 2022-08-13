@@ -189,3 +189,56 @@ func TestTodoService_Save(t *testing.T) {
 		})
 	}
 }
+
+func TestTodoService_Remove(t *testing.T) {
+	todos := []*domain.Todo{
+		{
+			ID:    "1",
+			Title: "Todo 1",
+		},
+	}
+
+	type fields struct {
+		todoRepository ports.TodoRepository
+	}
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "should be able to remove a todo",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todos, nil),
+			},
+			args: args{
+				id: "1",
+			},
+			wantErr: false,
+		},
+		{
+			name: "should not be able to remove a todo if the id is not found",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todos, nil),
+			},
+			args: args{
+				id: "2",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &TodoService{
+				todoRepository: tt.fields.todoRepository,
+			}
+			if err := s.Remove(tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("TodoService.Remove() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
