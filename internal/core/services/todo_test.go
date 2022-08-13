@@ -48,9 +48,9 @@ func TestTodoService_GetTodos(t *testing.T) {
 				return
 			}
 
-			// if (err != nil) == tt.wantErr {
-			// 	return
-			// }
+			if (err != nil) == tt.wantErr {
+				return
+			}
 
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("TodoService.GetTodos() = %v, want %v", got, tt.want)
