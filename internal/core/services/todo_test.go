@@ -62,7 +62,9 @@ func TestTodoService_GetTodos(t *testing.T) {
 func TestTodoService_GetTodo(t *testing.T) {
 	todos := []*domain.Todo{
 		{
-			ID:    "1",
+			Base: domain.Base{
+				ID: "1",
+			},
 			Title: "Todo 1",
 		},
 	}
@@ -87,7 +89,9 @@ func TestTodoService_GetTodo(t *testing.T) {
 			args: args{
 				id: "1",
 			},
-			want:    &domain.Todo{ID: "1", Title: "Todo 1"},
+			want: &domain.Todo{Base: domain.Base{
+				ID: "1",
+			}, Title: "Todo 1"},
 			wantErr: false,
 		},
 		{
@@ -122,7 +126,9 @@ func TestTodoService_GetTodo(t *testing.T) {
 func TestTodoService_Save(t *testing.T) {
 	todosUpdate := []*domain.Todo{
 		{
-			ID:    "2",
+			Base: domain.Base{
+				ID: "2",
+			},
 			Title: "Todo 1",
 		},
 	}
@@ -158,7 +164,9 @@ func TestTodoService_Save(t *testing.T) {
 			},
 			args: args{
 				todo: &domain.Todo{
-					ID:    "2",
+					Base: domain.Base{
+						ID: "2",
+					},
 					Title: "Todo 2",
 				},
 			},
@@ -171,7 +179,9 @@ func TestTodoService_Save(t *testing.T) {
 			},
 			args: args{
 				todo: &domain.Todo{
-					ID:    "3",
+					Base: domain.Base{
+						ID: "3",
+					},
 					Title: "Todo 2",
 				},
 			},
@@ -183,7 +193,7 @@ func TestTodoService_Save(t *testing.T) {
 			s := &TodoService{
 				todoRepository: tt.fields.todoRepository,
 			}
-			if err := s.Save(tt.args.todo); (err != nil) != tt.wantErr {
+			if _, err := s.Save(tt.args.todo); (err != nil) != tt.wantErr {
 				t.Errorf("TodoService.Save() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -193,7 +203,9 @@ func TestTodoService_Save(t *testing.T) {
 func TestTodoService_Remove(t *testing.T) {
 	todos := []*domain.Todo{
 		{
-			ID:    "1",
+			Base: domain.Base{
+				ID: "1",
+			},
 			Title: "Todo 1",
 		},
 	}
@@ -238,6 +250,83 @@ func TestTodoService_Remove(t *testing.T) {
 			}
 			if err := s.Remove(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("TodoService.Remove() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestTodoService_Update(t *testing.T) {
+	todos := []*domain.Todo{
+		{
+			Base: domain.Base{
+				ID: "1",
+			},
+			Title: "Not updated",
+		},
+	}
+	type fields struct {
+		todoRepository ports.TodoRepository
+	}
+	type args struct {
+		todo *domain.Todo
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *domain.Todo
+		wantErr bool
+	}{
+		{
+			name: "should be able to update a todo",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todos, nil),
+			},
+			args: args{
+				todo: &domain.Todo{
+					Base: domain.Base{
+						ID: "1",
+					},
+					Title: "Updated",
+				},
+			},
+			want: &domain.Todo{
+				Base: domain.Base{
+					ID: "1",
+				},
+				Title: "Updated",
+			},
+			wantErr: false,
+		},
+		{
+			name: "should not be able to update a todo when the id is not found",
+			fields: fields{
+				todoRepository: persistence.NewInMemoryTodoRepository(todos, nil),
+			},
+			args: args{
+				todo: &domain.Todo{
+					Base: domain.Base{
+						ID: "2",
+					},
+					Title: "Updated",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &TodoService{
+				todoRepository: tt.fields.todoRepository,
+			}
+			got, err := s.Update(tt.args.todo)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TodoService.Update() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TodoService.Update() = %v, want %v", got, tt.want)
 			}
 		})
 	}
