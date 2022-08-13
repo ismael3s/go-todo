@@ -1,13 +1,21 @@
 package domain
 
+import (
+	"github.com/ismael3s/go-todo/internal/infra/utils"
+)
+
 type Todo struct {
-	ID    string `json:"id"`
+	Base
 	Title string `json:"title"`
 }
 
-func NewTodo(id string, title string) *Todo {
+func NewTodo(title string) *Todo {
 	return &Todo{
-		ID:    id,
+		Base: Base{
+			ID:        utils.NewUUID(),
+			CreatedAt: utils.NowTime(),
+			UpdatedAt: utils.NowTime(),
+		},
 		Title: title,
 	}
 }
