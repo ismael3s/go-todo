@@ -1,4 +1,4 @@
-name: Test
+name: Build and Test
 
 on:
   # push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
 
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -23,19 +23,5 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set Up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-        check-latest: true
-        cache: true
-      
     - name: Test
       run: go test -v ./...
